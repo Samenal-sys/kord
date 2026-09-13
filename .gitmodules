@@ -1,0 +1,4 @@
+[submodule "app"]
+	path = app
+	url = https://github.com/samenal-sys/discord-for-kaios.git
+	branch = kord
