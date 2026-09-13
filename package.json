@@ -1,0 +1,50 @@
+{
+  "name": "kord",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "build:app": "cd app && npm install && npm run build:kord && cp -r kord ../appdir",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:all": "electron-builder -wl",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Samenal-sys/kord.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "AGPL-3.0-only",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Samenal-sys/kord/issues"
+  },
+  "homepage": "https://github.com/Samenal-sys/kord#readme",
+  "build": {
+    "appId": "com.samenalsys.kord",
+    "productName": "kord",
+    "files": [
+      "**/*"
+    ],
+    "win": {
+      "target": [
+        "zip"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm",
+        "tar.xz"
+      ]
+    }
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
+  }
+}

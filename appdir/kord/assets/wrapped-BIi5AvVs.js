@@ -1,0 +1,1 @@
+import{C as e}from"./index-Bk2oI__C.js";const r=e(new Worker(new URL("/assets/worker-BU1WzbNl.js",import.meta.url),{type:"module"})),o=r.getGuildFoldersFromProto,t=r.createInflateInstance;export{t as createInflateInstance,o as getGuildFoldersFromProto};
