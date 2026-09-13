@@ -1,11 +1,13 @@
 {
   "name": "kord",
   "version": "1.0.0",
-  "description": "",
+  "description": "Light discord app",
   "main": "index.js",
+  "author": "",
   "scripts": {
     "start": "electron .",
-    "build:app": "cd app && npm install && npm run build:kord && cp -r kord ../appdir",
+    "build:app": "rm appdir/ -rf && cd appsrc && npm install && npm run build:kord && cp -r kord ../appdir",
+    "dev:app" :"rm appdir/ -rf && cd appsrc && npm install && npm run dev:kord && cp -r kord ../appdir",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:all": "electron-builder -wl",
     "build:win": "electron-builder --win",
@@ -16,7 +18,6 @@
     "url": "git+https://github.com/Samenal-sys/kord.git"
   },
   "keywords": [],
-  "author": "",
   "license": "AGPL-3.0-only",
   "type": "commonjs",
   "bugs": {
@@ -38,13 +39,18 @@
       "target": [
         "AppImage",
         "deb",
-        "rpm",
-        "tar.xz"
+        "rpm"
       ]
     }
   },
   "devDependencies": {
     "electron": "^30.0.0",
     "electron-builder": "^24.13.3"
+  },
+  "allowScripts": {
+    "electron@30.5.1": true
+  },
+  "dependencies": {
+    "serve-handler": "^6.1.7"
   }
 }
