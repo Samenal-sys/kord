@@ -1,5 +1,5 @@
 import { DiscordSnowflake } from "./src/lib/Snowflake.ts";
-import BigInteger from "./src/lib/bigint/BigInteger.ts";
+import BigInteger from "./src/lib/bigint/BigInteger";
 
 export * from "./src/DiscordClient.ts";
 export * from "./src/DiscordGuild.ts";

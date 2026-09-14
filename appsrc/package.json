@@ -4,6 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
+		"postinstall": "patch-package",
 		"dev": "bun run --bun vite",
 		"build": "bun run --bun vite build",
 		"dev:v3": "KAIOS=3 bun run dev",

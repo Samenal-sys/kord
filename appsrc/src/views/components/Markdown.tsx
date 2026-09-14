@@ -1,4 +1,4 @@
-import { rules } from "discord-markdown-parser";
+import { rules } from "discord-markdown-parser/src";
 import SimpleMarkdown from "simple-markdown";
 
 import * as styles from "./Markdown.module.scss";

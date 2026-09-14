@@ -40,7 +40,7 @@ async function _loadRlottie(): Promise<true> {
 		RlottieWasm = Module.RlottieWasm;
 	} else {
 		if (import.meta.env.DEV) {
-			const { factory } = await import("./asmjs/rlottie-wasm.asm.dev.js");
+			const { factory } = await import("./asmjs/rlottie-wasm.asm.dev");
 			const Module = await factory({
 				locateFile() {
 					return AsmMemURL;

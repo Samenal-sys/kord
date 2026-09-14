@@ -6,3 +6,45 @@ dist/
 node_modules/
 package-lock.json
 source_code
+appsrc/kord
+
+
+# add gitignores for the discord app thing
+# Logs
+appsrc/logs
+appsrc/*.log
+appsrc/npm-debug.log*
+appsrc/yarn-debug.log*
+appsrc/yarn-error.log*
+appsrc/pnpm-debug.log*
+appsrc/lerna-debug.log*
+
+appsrc
+appsrc/dist
+appsrc/dist-v3
+appsrc/dist-ssr
+appsrc/*.local
+appsrc/private
+appsrc/builds
+
+# dotenv environment variable files
+appsrc/.env
+appsrc/.env.development.local
+appsrc/.env.test.local
+appsrc/.env.production.local
+appsrc/.env.local
+
+# Editor directories and files
+appsrc/.vscode/*
+!appsrc/.vscode/extensions.json
+!appsrc/.vscode/settings.json
+appsrc/.idea
+appsrc/.DS_Store
+appsrc/*.suo
+appsrc/*.ntvs*
+appsrc/*.njsproj
+appsrc/*.sln
+appsrc/*.sw?
+
+# scss
+appsrc/*.module.scss.d.ts

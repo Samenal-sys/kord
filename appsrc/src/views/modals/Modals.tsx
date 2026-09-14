@@ -1,8 +1,8 @@
 import Toast from "./ToastModal.tsx";
-import FullscreenModal from "./fullscreen.tsx";
-import Popup from "./popup.tsx";
-import Slide from "./slide.tsx";
-import Toolshed from "./toolshed.tsx";
+import FullscreenModal from "./fullscreen";
+import Popup from "./popup";
+import Slide from "./slide";
+import Toolshed from "./toolshed";
 
 export default function Modals() {
 	return (
