@@ -1,10 +1,17 @@
-const { app, BrowserWindow, session } = require('electron');
+const { app, BrowserWindow, session, protocol, net } = require('electron');
 const http = require('http');
 const os = require('os');
 const path = require('path');
+const fs = require('fs');
+const { pathToFileURL } = require('url');
 const handler = require('serve-handler');
-const dataDir = path.join(os.homedir(), '.local', 'kord', 'data');
-app.setPath('userData',dataDir);
+
+// Fix for Windows: Use standard AppData Roaming instead of forcing ~/.local
+const dataDir = os.platform() === 'win32' 
+  ? path.join(app.getPath('appData'), 'kord', 'data')
+  : path.join(os.homedir(), '.local', 'kord', 'data');
+app.setPath('userData', dataDir);
+
 let server;
 let PORT = 51473; 
 
@@ -27,8 +34,8 @@ protocol.registerSchemesAsPrivileged([
   {
     scheme: 'kord',
     privileges: {
-      standard: true,      // Allows standard web storage (localStorage, IndexedDB)
-      secure: true,        // Treats origin as HTTPS (prevents crypto API errors)
+      standard: true,      
+      secure: true,        
       allowServiceWorkers: true,
       supportFetchAPI: true,
       corsEnabled: true
@@ -38,8 +45,10 @@ protocol.registerSchemesAsPrivileged([
 
 async function createWindow() {
   // await createServer(); // im turning this off to try smth
+  
+  const customSession = session.fromPartition('persist:kord_session');
 
-protocol.handle('kord', (request) => {
+  customSession.protocol.handle('kord', (request) => {
     const parsedUrl = new URL(request.url);
 
     // Verify origin matches local.app
@@ -47,17 +56,17 @@ protocol.handle('kord', (request) => {
       let reqPath = parsedUrl.pathname;
       if (reqPath === '/' || reqPath === '') reqPath = '/index.html';
 
-      // Map request to absolute file path inside ./appdir
-      const filePath = path.join(__dirname, 'appdir', path.normalize(reqPath));
+      // Map request to absolute file path inside ./appdir safely
+      const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
+      const filePath = path.join(__dirname, 'appdir', safePath);
+      
       return net.fetch(pathToFileURL(filePath).toString());
     }
 
     return new Response('Not Found', { status: 404 });
   });
 
-
-
-  session.defaultSession.webRequest.onBeforeSendHeaders(
+  customSession.webRequest.onBeforeSendHeaders(
     { urls: ['https://discord.com/*', 'https://*.discord.gg/*'] },
     (details, callback) => {
       const headers = details.requestHeaders;
@@ -71,6 +80,7 @@ protocol.handle('kord', (request) => {
       callback({ cancel: false, requestHeaders: headers });
     }
   );
+
   const win = new BrowserWindow({
     width: 240,
     height: 320,
@@ -85,11 +95,23 @@ protocol.handle('kord', (request) => {
   });
 
   win.loadURL(`kord://local.app/index.html`)
-  win.setIgnoreMouseEvents(true, { forward: true });
-  win.webContents.on('did-finish-load', () => {
+
+  win.webContents.on('dom-ready', async () => {
+    // Safely inject Open Sans as a DOM link element instead of relying on unreliable insertCSS @imports
+    win.webContents.executeJavaScript(`
+      if (!document.getElementById('open-sans-font')) {
+        const link = document.createElement('link');
+        link.id = 'open-sans-font';
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap';
+        document.head.appendChild(link);
+      }
+    `);
+
     win.webContents.insertCSS(`
       *, *::before, *::after {
         cursor: none !important;
+        font-family: 'Open Sans', sans-serif !important;
       }
       ::-webkit-scrollbar {
         display: none !important;
@@ -99,25 +121,49 @@ protocol.handle('kord', (request) => {
       html, body, * {
         scrollbar-width: none !important;
       }
-    `); });
+    `); 
+
+    // MOD SYSTEM: Inject every .css / .js file inside the "mods" folder
+    const modsDir = path.join(app.getPath('userData'), 'mods');
+    try {
+      if (fs.existsSync(modsDir)) {
+        const files = await fs.promises.readdir(modsDir);
+        for (const file of files) {
+          const filePath = path.join(modsDir, file);
+          const ext = path.extname(file).toLowerCase();
+          
+          if (ext === '.css') {
+            const cssContent = await fs.promises.readFile(filePath, 'utf8');
+            await win.webContents.insertCSS(cssContent);
+          } else if (ext === '.js') {
+            const jsContent = await fs.promises.readFile(filePath, 'utf8');
+            await win.webContents.executeJavaScript(jsContent);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load mods:', err);
+    }
+  });
 }
 app.whenReady().then(createWindow);
 
-window.addEventListener('keydown', (event) => {
-  // This function to forward keys is AI made btw
-  if (event.ctrlKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
-    event.preventDefault(); 
+if (typeof window !== 'undefined') {
+  window.addEventListener('keydown', (event) => {
+    // This function to forward keys is AI made btw
+    if (event.ctrlKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+      event.preventDefault(); 
 
-    const targetKey = event.key === 'ArrowLeft' ? 'SoftLeft' : 'SoftRight';
+      const targetKey = event.key === 'ArrowLeft' ? 'SoftLeft' : 'SoftRight';
 
-    const syntheticEvent = new KeyboardEvent('keydown', {
-      key: targetKey,
-      code: targetKey,
-      bubbles: true,
-      cancelable: true
-    });
+      const syntheticEvent = new KeyboardEvent('keydown', {
+        key: targetKey,
+        code: targetKey,
+        bubbles: true,
+        cancelable: true
+      });
 
-    event.target.dispatchEvent(syntheticEvent);
-  }
-});
-
+      event.target.dispatchEvent(syntheticEvent);
+    }
+  });
+}
